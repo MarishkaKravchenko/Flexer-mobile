@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Flexer-mobile</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_qr">QrActivity</string>
+    <string name="btn_scanner">Scanner</string>
+    <string name="btn_scan">Scan</string>
+</resources>
