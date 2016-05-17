@@ -22,11 +22,9 @@ public class QrActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                Intent intent = new Intent(v.getContext(), BarcodeScanner.class);
+                Intent intent = new Intent(v.getContext(), BarcodeScannerActivity.class);
                 startActivity(intent);
             }
         });
-
     }
-
 }

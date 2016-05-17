@@ -1,6 +1,7 @@
 package flexer.com.flexer_mobile;
 
 import android.app.ProgressDialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
@@ -37,7 +38,10 @@ public class MainActivity extends AppCompatActivity {
     private RequestQueue requestQueue;
     /*private static final String URL = "http://private-4e85ed-mokky.apiary-mock.com/users";*/
     private static final String URL = "http://192.168.0.101/auth/login";
+    private String user;
+    private String pass;
 
+    SharedPreferences sPref;
 
     @InjectView(R.id.input_user) EditText _userText;
     @InjectView(R.id.input_password) EditText _passwordText;
@@ -50,6 +54,15 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.inject(this);
 
         requestQueue = Volley.newRequestQueue(this);
+
+        user = _userText.getText().toString();
+        pass = _passwordText.getText().toString();
+
+        sPref = getPreferences(MODE_PRIVATE);
+        SharedPreferences.Editor ed = sPref.edit();
+        ed.putString("user", user);
+        ed.putString("pass", user);
+        ed.commit();
 
         _loginButton.setOnClickListener(new View.OnClickListener() {
 
@@ -125,8 +138,6 @@ public class MainActivity extends AppCompatActivity {
 
                             @Override
                             public Map<String, String> getHeaders() throws AuthFailureError {
-                                String user = _userText.getText().toString();
-                                String pass = _passwordText.getText().toString();
                                 return createBasicAuthHeader(user, pass);
                             }
                         };
@@ -168,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
             _userText.setError(null);
         }
 
-        if (password.isEmpty() || password.length() < 4 || password.length() > 10) {
+        if (password.isEmpty() || password.length() < 4 || password.length() > 20) {
             _passwordText.setError("between 4 and 10 alphanumeric characters");
             valid = false;
         } else {

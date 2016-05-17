@@ -4,4 +4,7 @@
     <string name="title_activity_qr">QrActivity</string>
     <string name="btn_scanner">Scanner</string>
     <string name="btn_scan">Scan</string>
+    <string name="title_activity_result">ResultActivity</string>
+    <string name="title_activity_temp">TempActivity</string>
+    <string name="title_activity_temp2">Temp2Activity</string>
 </resources>
