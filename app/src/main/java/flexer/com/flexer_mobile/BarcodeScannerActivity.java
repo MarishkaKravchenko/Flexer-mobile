@@ -212,6 +212,8 @@ public class BarcodeScannerActivity extends AppCompatActivity {
             Integer count = obj.getInt("count");
             count++;
             obj.put("count", count);
+            Log.i("<<<<<<Asset Code>>>>> ",
+                    "<<<<Obg = >>> " + obj.toString());
             URL = "http://192.168.0.101/employee-api/cards/" + obj.getString("cardId");
         } catch (JSONException e) {
             e.printStackTrace();
@@ -220,19 +222,28 @@ public class BarcodeScannerActivity extends AppCompatActivity {
 
 
         JsonObjectRequest request = new JsonObjectRequest(
-                Request.Method.PUT,
+                Request.Method.POST,
                 URL,
-                obj,
                 listener,
                 errorListener){
 
-            @Override
-            public String getBodyContentType() {
-                return "application/json; charset=utf-8";
-            }
+//            @Override
+//            public String getBodyContentType() {
+//                return "application/json; charset=utf-8";
+//            }
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 return createBasicAuthHeader(user, pass);
+            }
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                try {
+                    params.put("count", obj.getString("count"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                return params;
             }
         };
 
