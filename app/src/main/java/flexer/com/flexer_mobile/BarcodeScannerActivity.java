@@ -226,7 +226,10 @@ public class BarcodeScannerActivity extends AppCompatActivity {
                 listener,
                 errorListener){
 
-
+            @Override
+            public String getBodyContentType() {
+                return "application/json; charset=utf-8";
+            }
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 return createBasicAuthHeader(user, pass);

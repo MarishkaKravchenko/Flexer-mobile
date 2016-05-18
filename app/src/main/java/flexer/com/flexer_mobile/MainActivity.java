@@ -55,14 +55,7 @@ public class MainActivity extends AppCompatActivity {
 
         requestQueue = Volley.newRequestQueue(this);
 
-        user = _userText.getText().toString();
-        pass = _passwordText.getText().toString();
 
-        sPref = getPreferences(MODE_PRIVATE);
-        SharedPreferences.Editor ed = sPref.edit();
-        ed.putString("user", user);
-        ed.putString("pass", user);
-        ed.commit();
 
         _loginButton.setOnClickListener(new View.OnClickListener() {
 
@@ -80,6 +73,15 @@ public class MainActivity extends AppCompatActivity {
             onLoginFailed();
             return;
         }
+
+        user = _userText.getText().toString();
+        pass = _passwordText.getText().toString();
+
+        sPref = getPreferences(MODE_PRIVATE);
+        SharedPreferences.Editor ed = sPref.edit();
+        ed.putString("user", user);
+        ed.putString("pass", user);
+        ed.commit();
 
         _loginButton.setEnabled(false);
 
