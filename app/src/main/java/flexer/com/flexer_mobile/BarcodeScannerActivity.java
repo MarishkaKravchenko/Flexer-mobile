@@ -77,7 +77,7 @@ public class BarcodeScannerActivity extends AppCompatActivity {
 
         requestQueue = Volley.newRequestQueue(this);
 
-        sPref = getPreferences(MODE_PRIVATE);
+        sPref = getSharedPreferences("MyPref",MODE_PRIVATE);
         user = sPref.getString("user", "");
         pass = sPref.getString("pass", "");
 
