@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
         sPref = getPreferences(MODE_PRIVATE);
         SharedPreferences.Editor ed = sPref.edit();
         ed.putString("user", user);
-        ed.putString("pass", user);
+        ed.putString("pass", pass);
         ed.commit();
 
         _loginButton.setEnabled(false);
