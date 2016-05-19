@@ -7,4 +7,8 @@
     <string name="title_activity_result">ResultActivity</string>
     <string name="title_activity_temp">TempActivity</string>
     <string name="title_activity_temp2">Temp2Activity</string>
+    <string name="title_progress">YOUR PROGRESS</string>
+    <string name="get_bonus">GET IT</string>
+    <string name="ch_remember_me">Remember me</string>
+    <string name="btn_login">Login</string>
 </resources>
