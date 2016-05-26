@@ -5,13 +5,43 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
     <TextView
-        android:id="@+id/resultView"
+        android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:text="TextView"
+        android:text="@string/title_progress"
         android:textSize="20sp"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true">
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="52dp">
     </TextView>
+
+    <ProgressBar
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:id="@+id/progressBar"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"/>
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Large Text"
+        android:id="@+id/progressView"
+        android:layout_below="@+id/progressBar"
+        android:layout_centerHorizontal="true"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/get_bonus"
+        android:id="@+id/btn_bonus"
+        android:onClick="getBonus"
+        android:layout_below="@+id/progressView"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="57dp"/>
+
 </RelativeLayout>

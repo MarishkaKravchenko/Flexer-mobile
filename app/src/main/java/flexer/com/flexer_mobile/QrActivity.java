@@ -10,21 +10,30 @@ import android.widget.Button;
 public class QrActivity extends AppCompatActivity {
 
     private Button scannerButton;
+    UserLocalStore userLocalStore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_qr);
 
+        userLocalStore = new UserLocalStore(this);
+
         scannerButton = (Button) findViewById(R.id.scannerButton);
 
         scannerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 Intent intent = new Intent(v.getContext(), BarcodeScannerActivity.class);
                 startActivity(intent);
             }
         });
     }
+        public void logOut(View v) {
+            userLocalStore.clearUserData();
+            userLocalStore.setUserLoggedIn(false);
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+        }
+
 }

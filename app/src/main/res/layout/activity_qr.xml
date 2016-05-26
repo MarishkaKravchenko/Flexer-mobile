@@ -14,4 +14,15 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:text="@string/btn_scanner" />
+
+    <Button
+        android:id="@+id/bLogout"
+        android:layout_width="wrap_content"
+        android:text="Logout"
+        android:layout_height="wrap_content"
+        android:onClick="logOut"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"/>
+
 </RelativeLayout>

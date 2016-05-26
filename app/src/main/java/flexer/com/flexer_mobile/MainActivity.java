@@ -1,15 +1,14 @@
 package flexer.com.flexer_mobile;
 
 import android.app.ProgressDialog;
-import android.content.SharedPreferences;
+
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Base64;
-import android.util.Log;
 
 import android.content.Intent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -17,71 +16,65 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "AuthActivity";
 
-    private RequestQueue requestQueue;
-    /*private static final String URL = "http://private-4e85ed-mokky.apiary-mock.com/users";*/
-    private static final String URL = "http://192.168.0.101/auth/login";
-    private String user;
-    private String pass;
+    /*private static final String URL = "http://private-4e85ed-mokky.apiary-mock.com/users2";*/
+    private String URL = "http://192.168.0.101/auth/login";
 
-    SharedPreferences sPref;
+    UserLocalStore userLocalStore;
 
     @InjectView(R.id.input_user) EditText _userText;
     @InjectView(R.id.input_password) EditText _passwordText;
     @InjectView(R.id.btn_login) Button _loginButton;
+    @InjectView(R.id.ch_remember_me) CheckBox _ch_remember_me;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.inject(this);
-
-        requestQueue = Volley.newRequestQueue(this);
-
-
+        userLocalStore = new UserLocalStore(this);
 
         _loginButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                auth();
+                String username = _userText.getText().toString();
+                String password = _passwordText.getText().toString();
+                User user = new User(username, password);
+                auth(user);
             }
         });
     }
 
-    public void auth() {
-        Log.d(TAG, "Auth");
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (authenticate()) {
+            displayUserDetails();
+        }
+    }
 
-        if (!validate()) {
+    private boolean authenticate() {
+        return userLocalStore.getLoggedInUser() != null;
+    }
+
+    private void displayUserDetails() {
+        User user = userLocalStore.getLoggedInUser();
+        _userText.setText(user.username);
+        _passwordText.setText(user.password);
+    }
+
+    public void auth(User user) {
+
+        if (!validate(user)) {
             onLoginFailed();
             return;
         }
-
-        user = _userText.getText().toString();
-        pass = _passwordText.getText().toString();
-
-        sPref = getSharedPreferences("MyPref",MODE_PRIVATE);
-        SharedPreferences.Editor ed = sPref.edit();
-        ed.putString("user", user);
-        ed.putString("pass", pass);
-        ed.commit();
 
         _loginButton.setEnabled(false);
 
@@ -91,64 +84,20 @@ public class MainActivity extends AppCompatActivity {
         progressDialog.setMessage("Authenticating...");
         progressDialog.show();
 
-        new android.os.Handler().postDelayed(
-                new Runnable() {
-                    Map<String, String> createBasicAuthHeader(String username, String password) {
-                        Map<String, String> headerMap = new HashMap<String, String>();
-                        String credentials = username + ":" + password;
-                        String base64EncodedCredentials =
-                                Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
-                        headerMap.put("Authorization", "Basic " + base64EncodedCredentials);
+        OkHttpHandler handler = new OkHttpHandler(user.username, user.password);
+        String result = null;
+        try {
+            result = handler.execute(URL, "GET").get();
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
-                        return headerMap;
-                    }
-
-                    Response.Listener<String> listener = new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            try {
-                                JSONObject jsonObject = new JSONObject(response);
-                                if (jsonObject.names().get(0).equals("success")) {
-                                    Toast.makeText(getApplicationContext(), "Welcome", Toast.LENGTH_LONG).show();
-                                    startActivity(new Intent(getApplicationContext(), QrActivity.class));
-                                } else {
-                                    Toast.makeText(getApplicationContext(), "Error" + jsonObject.getString("error"), Toast.LENGTH_LONG).show();
-                                    onLoginFailed();
-                                }
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    };
-
-                    Response.ErrorListener errorListener = new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            if (error.networkResponse != null) {
-                                Toast.makeText(getApplicationContext(), "Error Response code: " + error.networkResponse.statusCode, Toast.LENGTH_LONG).show();
-                            }
-                        }
-                    };
-
-                    public void run() {
-                        StringRequest request = new StringRequest(
-                                Request.Method.POST,
-                                URL,
-                                listener,
-                                errorListener) {
-
-                            @Override
-                            public Map<String, String> getHeaders() throws AuthFailureError {
-                                return createBasicAuthHeader(user, pass);
-                            }
-                        };
-
-                        requestQueue.add(request);
-                        onLoginSuccess();
-                        progressDialog.dismiss();
-                    }
-                }, 3000);
+        onLoginSuccess(user);
+        progressDialog.dismiss();
     }
 
     @Override
@@ -157,31 +106,32 @@ public class MainActivity extends AppCompatActivity {
         moveTaskToBack(true);
     }
 
-    public void onLoginSuccess() {
+    public void onLoginSuccess(User user) {
         _loginButton.setEnabled(true);
+        if(_ch_remember_me.isChecked()) {
+            userLocalStore.storeUserData(user);
+            userLocalStore.setUserLoggedIn(true);
+        }
+        startActivity(new Intent(getApplicationContext(), QrActivity.class));
         finish();
     }
 
     public void onLoginFailed() {
         Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
-
         _loginButton.setEnabled(true);
     }
 
-    public boolean validate() {
+    public boolean validate(User user) {
         boolean valid = true;
 
-        String user = _userText.getText().toString();
-        String password = _passwordText.getText().toString();
-
-        if (user.isEmpty()) {
+        if (user.username.isEmpty()) {
             _userText.setError("enter your name");
             valid = false;
         } else {
             _userText.setError(null);
         }
 
-        if (password.isEmpty() || password.length() < 4 || password.length() > 20) {
+        if (user.password.isEmpty() || user.password.length() < 4 || user.password.length() > 20) {
             _passwordText.setError("between 4 and 10 alphanumeric characters");
             valid = false;
         } else {
@@ -190,4 +140,6 @@ public class MainActivity extends AppCompatActivity {
 
         return valid;
     }
+
+
 }

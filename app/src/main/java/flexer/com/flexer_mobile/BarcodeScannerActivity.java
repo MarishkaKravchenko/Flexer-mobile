@@ -1,30 +1,26 @@
 package flexer.com.flexer_mobile;
 
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Base64;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
+import com.squareup.okhttp.Call;
+import com.squareup.okhttp.Callback;
+import com.squareup.okhttp.Credentials;
+import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.RequestBody;
+import com.squareup.okhttp.Response;
 
 import net.sourceforge.zbar.Config;
 import net.sourceforge.zbar.Image;
@@ -35,8 +31,9 @@ import net.sourceforge.zbar.SymbolSet;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
+import java.util.concurrent.ExecutionException;
+
 
 public class BarcodeScannerActivity extends AppCompatActivity {
 
@@ -52,15 +49,12 @@ public class BarcodeScannerActivity extends AppCompatActivity {
 
     private ProgressDialog pDialog;
 
-    private RequestQueue requestQueue;
-   /* private static final String URL = "http://private-4e85ed-mokky.apiary-mock.com/users";*/
     private static String URL;
-    private JSONObject obj;
 
-    SharedPreferences sPref;
+    private String scanResult;
+    private String res;
 
-    private String user;
-    private String pass;
+    UserLocalStore userLocalStore;
 
     static {
         System.loadLibrary("iconv");
@@ -75,12 +69,7 @@ public class BarcodeScannerActivity extends AppCompatActivity {
         pDialog.setMessage("Loading...");
         pDialog.setCancelable(false);
 
-        requestQueue = Volley.newRequestQueue(this);
-
-        sPref = getSharedPreferences("MyPref",MODE_PRIVATE);
-        user = sPref.getString("user", "");
-        pass = sPref.getString("pass", "");
-
+        userLocalStore = new UserLocalStore(this);
         initControls();
     }
 
@@ -171,17 +160,16 @@ public class BarcodeScannerActivity extends AppCompatActivity {
                 SymbolSet syms = scanner.getResults();
                 for (Symbol sym : syms) {
 
-                    Log.i("<<<<<<Asset Code>>>>> ",
-                            "<<<<Bar Code>>> " + sym.getData());
-
-                    String scanResult = sym.getData().trim();
-                    makeJsonObjReq(scanResult);
-
-                  /*  Toast.makeText(BarcodeScannerActivity.this, scanResult,
-                            Toast.LENGTH_SHORT).show();*/
-
+                    scanResult = sym.getData().trim();
                     barcodeScanned = true;
-
+                    releaseCamera();
+                    try {
+                        makeJsonObjReq();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     break;
                 }
             }
@@ -205,93 +193,34 @@ public class BarcodeScannerActivity extends AppCompatActivity {
             pDialog.hide();
     }
 
-    private void makeJsonObjReq(String result) {
+    private void makeJsonObjReq() throws JSONException, IOException {
         showProgressDialog();
+
         try {
-            JSONObject obj = new JSONObject(result);
+            JSONObject obj = new JSONObject(scanResult);
             Integer count = obj.getInt("count");
             count++;
             obj.put("count", count);
-            Log.i("<<<<<<Asset Code>>>>> ",
-                    "<<<<Obg = >>> " + obj.toString());
             URL = "http://192.168.0.101/employee-api/cards/" + obj.getString("cardId");
+            res = obj.toString();
+            Log.e("result ", "res: " + res);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-
-
-        JsonObjectRequest request = new JsonObjectRequest(
-                Request.Method.POST,
-                URL,
-                listener,
-                errorListener){
-
-//            @Override
-//            public String getBodyContentType() {
-//                return "application/json; charset=utf-8";
-//            }
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                return createBasicAuthHeader(user, pass);
-            }
-            @Override
-            protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<String, String>();
-                try {
-                    params.put("count", obj.getString("count"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                return params;
-            }
-        };
-
-        requestQueue.add(request);
-
-    };
-
-    Response.Listener<JSONObject> listener = new Response.Listener<JSONObject>() {
-
-        @Override
-        public void onResponse(JSONObject response) {
-            try {
-                if (response.names().get(0).equals("success")) {
-                    Toast.makeText(getApplicationContext(), "Welcome", Toast.LENGTH_LONG).show();
-                    Intent intent = new Intent(getApplicationContext(), ResultActivity.class);
-                    intent.putExtra("message", response.toString());
-                    startActivity(intent);
-                    hideProgressDialog();
-                } else {
-                    Toast.makeText(getApplicationContext(), "Error" + response.getString("error"), Toast.LENGTH_LONG).show();
-                    hideProgressDialog();
-                }
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+        User user = userLocalStore.getLoggedInUser();
+        OkHttpHandler handler = new OkHttpHandler(user.username, user.password);
+        String response = null;
+        try {
+            response = handler.execute(URL, "PUT", res).get();
+            Log.e("response ", "onResponse(): " + response);
+            Intent intent = new Intent(getApplicationContext(), ResultActivity.class);
+            intent.putExtra("message", response);
+            startActivity(intent);
+        } catch (InterruptedException | ExecutionException e) {
+            // TODO Auto-generated catch block
+            hideProgressDialog();
+            e.printStackTrace();
         }
-    };
-
-
-    Response.ErrorListener errorListener = new Response.ErrorListener() {
-
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            if (error.networkResponse != null) {
-                Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
-                hideProgressDialog();
-            }
-        }
-    };
-
-    Map<String, String> createBasicAuthHeader(String username, String password) {
-        Map<String, String> headerMap = new HashMap<String, String>();
-        String credentials = username + ":" + password;
-        String base64EncodedCredentials =
-                Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
-        headerMap.put("Authorization", "Basic " + base64EncodedCredentials);
-
-        return headerMap;
     }
 }
