@@ -26,6 +26,8 @@ public class QrActivity extends AppCompatActivity implements View.OnClickListene
         logoutButton = (ImageButton) findViewById(R.id.btn_logout);
         scannerButton.setOnClickListener(this);
         logoutButton.setOnClickListener(this);
+
+        userLocalStore = new UserLocalStore(this);
     }
         @Override
         public void onClick(View v) {

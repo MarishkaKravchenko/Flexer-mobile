@@ -42,8 +42,6 @@ public class OkHttpHandler extends AsyncTask<String, Void, String> {
 			}
 		});
 
-	/*	Request request = new Request.Builder().url(params[0]).build();
-*/
 		Response response;
 
 		try {
