@@ -2,7 +2,6 @@ package flexer.com.flexer_mobile;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -12,33 +11,26 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.squareup.okhttp.Call;
-import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.Credentials;
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.Response;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.concurrent.ExecutionException;
+
+import flexer.com.flexer_mobile.utils.OkHttpHandler;
+import flexer.com.flexer_mobile.utils.User;
+import flexer.com.flexer_mobile.utils.UserLocalStore;
 
 public class ResultActivity extends AppCompatActivity {
 
-    TextView progressView;
+    TextView tv_progress;
     ProgressBar progressBar;
-    Button btnBonus;
+    Button btn_getBonus;
 
     private int progressActual;
     private int progressRequired;
     private int ProgressStatus = 0;
 
     private ProgressDialog pDialog;
-    private String URL;
     private int cardId;
 
     UserLocalStore userLocalStore;
@@ -53,10 +45,10 @@ public class ResultActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String message = intent.getStringExtra("message");
 
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        progressView = (TextView) findViewById(R.id.progressView);
-        btnBonus = (Button) findViewById(R.id.btn_bonus);
-        btnBonus.setEnabled(false);
+        progressBar = (ProgressBar) findViewById(R.id.pb);
+        tv_progress = (TextView) findViewById(R.id.tv_progress);
+        btn_getBonus = (Button) findViewById(R.id.btn_bonus);
+        btn_getBonus.setEnabled(false);
 
         pDialog = new ProgressDialog(ResultActivity.this, R.style.AppTheme_Dark_Dialog);
         pDialog.setMessage("Please wait...");
@@ -70,7 +62,7 @@ public class ResultActivity extends AppCompatActivity {
             progressRequired = res.getInt("needed");
             cardId = res.getInt("cardId");
             if(progressActual == progressRequired){
-                btnBonus.setEnabled(true);
+                btn_getBonus.setEnabled(true);
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -85,7 +77,7 @@ public class ResultActivity extends AppCompatActivity {
                     handler.post(new Runnable() {
                         public void run() {
                             progressBar.setProgress(ProgressStatus);
-                            progressView.setText(ProgressStatus + "/" + progressBar.getMax());
+                            tv_progress.setText(ProgressStatus + "/" + progressBar.getMax());
                         }
                     });
                     try {
@@ -102,7 +94,7 @@ public class ResultActivity extends AppCompatActivity {
 
         showProgressDialog();
 
-        URL = "http://192.168.0.101/employee-api/cards/" + cardId;
+        String URL = "http://192.168.0.101/employee-api/cards/" + cardId;
 
         User user = userLocalStore.getLoggedInUser();
         OkHttpHandler handler = new OkHttpHandler(user.username, user.password);
@@ -111,52 +103,16 @@ public class ResultActivity extends AppCompatActivity {
             response = handler.execute(URL, "PUT", "{\"count\":0}").get();
             Log.e("response ", "onResponse(): " + response);
             hideProgressDialog();
-            Intent intent = new Intent(ResultActivity.this, QrActivity.class);
-            startActivity(intent);
+            startActivity(new Intent(getApplicationContext(), QrActivity.class));
         } catch (InterruptedException | ExecutionException e) {
             // TODO Auto-generated catch block
             hideProgressDialog();
             e.printStackTrace();
         }
-
-//        MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-//        RequestBody body = RequestBody.create(JSON, "\"count\":0");
-//
-//        OkHttpClient client = new OkHttpClient();
-//        User user = userLocalStore.getLoggedInUser();
-//        String credential = Credentials.basic(user.username, user.password);
-//
-//        Request request = new Request.Builder()
-//                .url(URL)
-//                .put(body)
-//                .addHeader("Authorization", credential)
-//                .build();
-//        Call call = client.newCall(request);
-//
-//        call.enqueue(new Callback() {
-//            @Override
-//            public void onFailure(Request request, IOException e) {
-//
-//                Log.e("HttpService", "onFailure() Request was: " + request);
-//                hideProgressDialog();
-//                e.printStackTrace();
-//            }
-//
-//            @Override
-//            public void onResponse(Response r) throws IOException {
-//
-//                String response = r.body().string();
-//                Log.e("response ", "onResponse(): " + response);
-//            }
-//        });
     }
 
-
-
     public void onBackPressed() {
-        Intent intent = new Intent(ResultActivity.this, QrActivity.class);
-        startActivity(intent);
-        finish();
+        startActivity(new Intent(getApplicationContext(), QrActivity.class));
     }
     private void showProgressDialog() {
         if (!pDialog.isShowing())

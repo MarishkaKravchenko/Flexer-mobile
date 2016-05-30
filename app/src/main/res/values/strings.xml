@@ -11,4 +11,5 @@
     <string name="get_bonus">GET IT</string>
     <string name="ch_remember_me">Remember me</string>
     <string name="btn_login">Login</string>
+    <string name="log_out">logout</string>
 </resources>

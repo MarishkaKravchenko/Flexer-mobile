@@ -6,10 +6,15 @@ import android.view.View;
 
 import android.content.Intent;
 import android.widget.Button;
+import android.widget.ImageButton;
 
-public class QrActivity extends AppCompatActivity {
+import flexer.com.flexer_mobile.utils.UserLocalStore;
+
+public class QrActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Button scannerButton;
+    private ImageButton logoutButton;
+
     UserLocalStore userLocalStore;
 
     @Override
@@ -17,23 +22,23 @@ public class QrActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_qr);
 
-        userLocalStore = new UserLocalStore(this);
-
-        scannerButton = (Button) findViewById(R.id.scannerButton);
-
-        scannerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), BarcodeScannerActivity.class);
-                startActivity(intent);
-            }
-        });
+        scannerButton = (Button) findViewById(R.id.btn_scannerButton);
+        logoutButton = (ImageButton) findViewById(R.id.btn_logout);
+        scannerButton.setOnClickListener(this);
+        logoutButton.setOnClickListener(this);
     }
-        public void logOut(View v) {
-            userLocalStore.clearUserData();
-            userLocalStore.setUserLoggedIn(false);
-            Intent intent = new Intent(this, MainActivity.class);
-            startActivity(intent);
-        }
+        @Override
+        public void onClick(View v) {
+            switch (v.getId()) {
+                case R.id.btn_scannerButton:
+                    startActivity(new Intent(getApplicationContext(), BarcodeScannerActivity.class));
 
+                    break;
+                case R.id.btn_logout:
+                    userLocalStore.clearUserData();
+                    userLocalStore.setUserLoggedIn(false);
+                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                    break;
+            }
+        }
 }

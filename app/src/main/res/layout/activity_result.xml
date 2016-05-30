@@ -20,7 +20,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         style="@android:style/Widget.ProgressBar.Horizontal"
-        android:id="@+id/progressBar"
+        android:id="@+id/pb"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"/>
 
@@ -30,8 +30,8 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Large Text"
-        android:id="@+id/progressView"
-        android:layout_below="@+id/progressBar"
+        android:id="@+id/tv_progress"
+        android:layout_below="@+id/pb"
         android:layout_centerHorizontal="true"/>
 
     <Button
@@ -40,7 +40,7 @@
         android:text="@string/get_bonus"
         android:id="@+id/btn_bonus"
         android:onClick="getBonus"
-        android:layout_below="@+id/progressView"
+        android:layout_below="@+id/tv_progress"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="57dp"/>
 

@@ -1,4 +1,4 @@
-package flexer.com.flexer_mobile;
+package flexer.com.flexer_mobile.utils;
 
 import android.content.Context;
 import android.hardware.Camera;

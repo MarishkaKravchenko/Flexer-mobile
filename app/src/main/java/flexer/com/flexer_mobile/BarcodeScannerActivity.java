@@ -13,15 +13,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
-import com.squareup.okhttp.Call;
-import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.Credentials;
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.Response;
-
 import net.sourceforge.zbar.Config;
 import net.sourceforge.zbar.Image;
 import net.sourceforge.zbar.ImageScanner;
@@ -33,6 +24,11 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
+
+import flexer.com.flexer_mobile.utils.CameraPreview;
+import flexer.com.flexer_mobile.utils.OkHttpHandler;
+import flexer.com.flexer_mobile.utils.User;
+import flexer.com.flexer_mobile.utils.UserLocalStore;
 
 
 public class BarcodeScannerActivity extends AppCompatActivity {
@@ -49,7 +45,7 @@ public class BarcodeScannerActivity extends AppCompatActivity {
 
     private ProgressDialog pDialog;
 
-    private static String URL;
+    private String URL;
 
     private String scanResult;
     private String res;
@@ -89,7 +85,7 @@ public class BarcodeScannerActivity extends AppCompatActivity {
         FrameLayout preview = (FrameLayout) findViewById(R.id.cameraPreview);
         preview.addView(mPreview);
 
-        scanButton = (Button) findViewById(R.id.ScanButton);
+        scanButton = (Button) findViewById(R.id.btn_scanButton);
 
         scanButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -203,7 +199,6 @@ public class BarcodeScannerActivity extends AppCompatActivity {
             obj.put("count", count);
             URL = "http://192.168.0.101/employee-api/cards/" + obj.getString("cardId");
             res = obj.toString();
-            Log.e("result ", "res: " + res);
         } catch (JSONException e) {
             e.printStackTrace();
         }

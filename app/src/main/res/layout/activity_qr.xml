@@ -9,20 +9,20 @@
                 tools:context=".QrActivity">
 
     <Button
-        android:id="@+id/scannerButton"
+        android:id="@+id/btn_scannerButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:text="@string/btn_scanner" />
 
-    <Button
-        android:id="@+id/bLogout"
-        android:layout_width="wrap_content"
-        android:text="Logout"
-        android:layout_height="wrap_content"
-        android:onClick="logOut"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"/>
+    <ImageButton
+        android:id="@+id/btn_logout"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignRight="@+id/btn_scannerButton"
+        android:layout_alignEnd="@+id/btn_scannerButton"
+        style="@style/AppTheme.Dark"
+        android:contentDescription="@string/log_out"
+        android:background="@drawable/logout"/>
 
 </RelativeLayout>

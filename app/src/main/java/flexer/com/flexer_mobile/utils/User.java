@@ -1,8 +1,9 @@
-package flexer.com.flexer_mobile;
+package flexer.com.flexer_mobile.utils;
 
 public class User {
 
-    String username, password;
+    public String username;
+    public String password;
 
     public User(String username, String password) {
         this.username = username;

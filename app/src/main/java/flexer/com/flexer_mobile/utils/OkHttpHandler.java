@@ -1,4 +1,4 @@
-package flexer.com.flexer_mobile;
+package flexer.com.flexer_mobile.utils;
 
 import java.io.IOException;
 import java.net.Proxy;

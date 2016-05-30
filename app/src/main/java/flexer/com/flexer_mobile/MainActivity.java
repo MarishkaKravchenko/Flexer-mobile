@@ -14,7 +14,9 @@ import android.widget.Toast;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-
+import flexer.com.flexer_mobile.utils.OkHttpHandler;
+import flexer.com.flexer_mobile.utils.User;
+import flexer.com.flexer_mobile.utils.UserLocalStore;
 
 
 import java.util.concurrent.ExecutionException;
@@ -27,10 +29,10 @@ public class MainActivity extends AppCompatActivity {
 
     UserLocalStore userLocalStore;
 
-    @InjectView(R.id.input_user) EditText _userText;
-    @InjectView(R.id.input_password) EditText _passwordText;
-    @InjectView(R.id.btn_login) Button _loginButton;
-    @InjectView(R.id.ch_remember_me) CheckBox _ch_remember_me;
+    @InjectView(R.id.input_user) EditText userText;
+    @InjectView(R.id.input_password) EditText passwordText;
+    @InjectView(R.id.btn_login) Button loginButton;
+    @InjectView(R.id.ch_remember_me) CheckBox ch_remember_me;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,12 +41,12 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.inject(this);
         userLocalStore = new UserLocalStore(this);
 
-        _loginButton.setOnClickListener(new View.OnClickListener() {
+        loginButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                String username = _userText.getText().toString();
-                String password = _passwordText.getText().toString();
+                String username = userText.getText().toString();
+                String password = passwordText.getText().toString();
                 User user = new User(username, password);
                 auth(user);
             }
@@ -56,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         if (authenticate()) {
             displayUserDetails();
+            startActivity(new Intent(getApplicationContext(), QrActivity.class));
         }
     }
 
@@ -65,8 +68,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void displayUserDetails() {
         User user = userLocalStore.getLoggedInUser();
-        _userText.setText(user.username);
-        _passwordText.setText(user.password);
+        userText.setText(user.username);
+        passwordText.setText(user.password);
     }
 
     public void auth(User user) {
@@ -76,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        _loginButton.setEnabled(false);
+        loginButton.setEnabled(false);
 
         final ProgressDialog progressDialog = new ProgressDialog(MainActivity.this,
                 R.style.AppTheme_Dark_Dialog);
@@ -95,7 +98,6 @@ public class MainActivity extends AppCompatActivity {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
         onLoginSuccess(user);
         progressDialog.dismiss();
     }
@@ -107,8 +109,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onLoginSuccess(User user) {
-        _loginButton.setEnabled(true);
-        if(_ch_remember_me.isChecked()) {
+        loginButton.setEnabled(true);
+        if(ch_remember_me.isChecked()) {
             userLocalStore.storeUserData(user);
             userLocalStore.setUserLoggedIn(true);
         }
@@ -118,28 +120,25 @@ public class MainActivity extends AppCompatActivity {
 
     public void onLoginFailed() {
         Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
-        _loginButton.setEnabled(true);
+        loginButton.setEnabled(true);
     }
 
     public boolean validate(User user) {
         boolean valid = true;
 
         if (user.username.isEmpty()) {
-            _userText.setError("enter your name");
+            userText.setError("enter your name");
             valid = false;
         } else {
-            _userText.setError(null);
+            userText.setError(null);
         }
 
         if (user.password.isEmpty() || user.password.length() < 4 || user.password.length() > 20) {
-            _passwordText.setError("between 4 and 10 alphanumeric characters");
+            passwordText.setError("between 4 and 10 alphanumeric characters");
             valid = false;
         } else {
-            _passwordText.setError(null);
+            passwordText.setError(null);
         }
-
         return valid;
     }
-
-
 }
