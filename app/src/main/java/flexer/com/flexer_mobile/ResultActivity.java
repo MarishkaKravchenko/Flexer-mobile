@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -16,15 +17,18 @@ import org.json.JSONObject;
 
 import java.util.concurrent.ExecutionException;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import flexer.com.flexer_mobile.utils.OkHttpHandler;
 import flexer.com.flexer_mobile.utils.User;
 import flexer.com.flexer_mobile.utils.UserLocalStore;
 
 public class ResultActivity extends AppCompatActivity {
 
-    TextView tv_progress;
-    ProgressBar progressBar;
-    Button btn_getBonus;
+
+    @InjectView(R.id.pb) ProgressBar progressBar;
+    @InjectView(R.id.tv_progress) TextView tv_progress;
+    @InjectView(R.id.btn_bonus) Button btn_getBonus;
 
     private int progressActual;
     private int progressRequired;
@@ -35,19 +39,17 @@ public class ResultActivity extends AppCompatActivity {
 
     UserLocalStore userLocalStore;
 
-
     private Handler handler = new Handler();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
 
+        ButterKnife.inject(this);
+
         Intent intent = getIntent();
         String message = intent.getStringExtra("message");
 
-        progressBar = (ProgressBar) findViewById(R.id.pb);
-        tv_progress = (TextView) findViewById(R.id.tv_progress);
-        btn_getBonus = (Button) findViewById(R.id.btn_bonus);
         btn_getBonus.setEnabled(false);
 
         pDialog = new ProgressDialog(ResultActivity.this, R.style.AppTheme_Dark_Dialog);

@@ -2,7 +2,6 @@ package flexer.com.flexer_mobile.utils;
 
 import java.io.IOException;
 import java.net.Proxy;
-import java.net.URL;
 
 import android.os.AsyncTask;
 
@@ -62,10 +61,11 @@ public class OkHttpHandler extends AsyncTask<String, Void, String> {
 				throw new IOException("Unexpected code " + response);
 			}
 			return response.body().string();
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return "failed to request";
+			return null;
 		}
 	}
 

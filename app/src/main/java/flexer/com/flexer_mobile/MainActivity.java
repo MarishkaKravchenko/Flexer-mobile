@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -24,8 +25,8 @@ import java.util.concurrent.ExecutionException;
 public class MainActivity extends AppCompatActivity {
 
 
-    /*private static final String URL = "http://private-4e85ed-mokky.apiary-mock.com/users2";*/
-    private String URL = "http://192.168.0.101/auth/login";
+    private String URL = "http://private-4e85ed-mokky.apiary-mock.com/users2";
+    /*private String URL = "http://192.168.0.101/auth/login";*/
 
     UserLocalStore userLocalStore;
 
@@ -91,14 +92,21 @@ public class MainActivity extends AppCompatActivity {
         String result = null;
         try {
             result = handler.execute(URL, "GET").get();
+            Log.v("RESPONSE>>>>>>>>>>>>",result);
+            if(result!=null) {
+                onLoginSuccess(user);
+            }
+            else{
+                onLoginFailed();
+            }
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+
         } catch (ExecutionException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        onLoginSuccess(user);
         progressDialog.dismiss();
     }
 

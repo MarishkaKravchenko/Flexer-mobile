@@ -8,22 +8,23 @@ import android.content.Intent;
 import android.widget.Button;
 import android.widget.ImageButton;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import flexer.com.flexer_mobile.utils.UserLocalStore;
 
 public class QrActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private Button scannerButton;
-    private ImageButton logoutButton;
-
     UserLocalStore userLocalStore;
+
+    @InjectView(R.id.btn_scannerButton) Button scannerButton;
+    @InjectView(R.id.btn_logout) ImageButton logoutButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_qr);
+        ButterKnife.inject(this);
 
-        scannerButton = (Button) findViewById(R.id.btn_scannerButton);
-        logoutButton = (ImageButton) findViewById(R.id.btn_logout);
         scannerButton.setOnClickListener(this);
         logoutButton.setOnClickListener(this);
 
