@@ -12,6 +12,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import net.sourceforge.zbar.Config;
 import net.sourceforge.zbar.Image;
@@ -208,14 +209,18 @@ public class BarcodeScannerActivity extends AppCompatActivity {
         String response = null;
         try {
             response = handler.execute(URL, "PUT", res).get();
-            Log.e("response ", "onResponse(): " + response);
-            Intent intent = new Intent(getApplicationContext(), ResultActivity.class);
-            intent.putExtra("message", response);
-            startActivity(intent);
+            if(response!=null) {
+                Intent intent = new Intent(getApplicationContext(), ResultActivity.class);
+                intent.putExtra("message", response);
+                startActivity(intent);
+            } else {
+                Toast.makeText(getApplicationContext(), "Something went wrong..", Toast.LENGTH_SHORT).show();
+            }
+
         } catch (InterruptedException | ExecutionException e) {
             // TODO Auto-generated catch block
-            hideProgressDialog();
             e.printStackTrace();
         }
+        hideProgressDialog();
     }
 }

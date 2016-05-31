@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.Proxy;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.squareup.okhttp.Authenticator;
 import com.squareup.okhttp.Credentials;

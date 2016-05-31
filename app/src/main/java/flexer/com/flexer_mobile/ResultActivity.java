@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -103,14 +104,16 @@ public class ResultActivity extends AppCompatActivity {
         String response = null;
         try {
             response = handler.execute(URL, "PUT", "{\"count\":0}").get();
-            Log.e("response ", "onResponse(): " + response);
-            hideProgressDialog();
-            startActivity(new Intent(getApplicationContext(), QrActivity.class));
+            if(response!=null) {
+                startActivity(new Intent(getApplicationContext(), QrActivity.class));
+            }else{
+                Toast.makeText(getApplicationContext(), "Something went wrong..", Toast.LENGTH_SHORT).show();
+            }
         } catch (InterruptedException | ExecutionException e) {
             // TODO Auto-generated catch block
-            hideProgressDialog();
             e.printStackTrace();
         }
+        hideProgressDialog();
     }
 
     public void onBackPressed() {
